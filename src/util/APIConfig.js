@@ -5,6 +5,11 @@ class APIConfig {
 
     // Task
     static CREATE_TASK = "/create-task";
+
+    // Event
+    static CREATE_EVENT = "/create-event";
+    static GET_EVENT = "/get-event";
+    static EDIT_EVENT = "/edit-event";
 }
 
 module.exports = APIConfig;
