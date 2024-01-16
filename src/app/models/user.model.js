@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
+const userTableName = "userinfo";
 
-const UserInfoModel = new Schema(
+const UserInfoSchema = new Schema(
     {
         password: { type: String, required: true },
         email: { type: String, required: true, lowercase: true },
@@ -11,8 +12,11 @@ const UserInfoModel = new Schema(
         job: { type: String },
     },
     {
+        versionKey: false,
         timestamps: true,
     },
 );
 
-module.exports = mongoose.model("userinfo", UserInfoModel);
+const UserInfoModel = mongoose.model(userTableName, UserInfoSchema);
+
+module.exports = { UserInfoModel, userTableName };
