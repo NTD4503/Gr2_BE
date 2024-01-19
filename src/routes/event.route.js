@@ -8,5 +8,6 @@ const EventController = require("../app/controllers/EventController");
 router.post(APIConfig.CREATE_EVENT, EventController.create);
 router.post(APIConfig.GET_EVENT, EventController.getEvent);
 router.post(APIConfig.EDIT_EVENT, EventController.editEvent);
+router.post(APIConfig.DELETING_EVENT, EventController.deleteEvent);
 
 module.exports = router;

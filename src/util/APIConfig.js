@@ -10,6 +10,7 @@ class APIConfig {
     static CREATE_EVENT = "/create-event";
     static GET_EVENT = "/get-event";
     static EDIT_EVENT = "/edit-event";
+    static DELETING_EVENT = "/delete-event";
 }
 
 module.exports = APIConfig;
