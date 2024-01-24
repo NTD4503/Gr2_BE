@@ -18,4 +18,4 @@ const UserProjectSchema = new Schema(
 
 const UserProjectModel = model(UserProjectTableName, UserProjectSchema);
 
-module.exports = { UserProjectModel, UserWorkspaceTableName };
+module.exports = { UserProjectModel, UserProjectTableName };

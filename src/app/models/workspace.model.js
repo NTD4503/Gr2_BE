@@ -6,6 +6,7 @@ const WorkspaceSchema = new Schema(
     {
         name: { type: String },
         description: { type: String },
+        code: { type: String },
     },
     {
         versionKey: false,

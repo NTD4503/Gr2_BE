@@ -34,6 +34,24 @@ class AuthController {
             res.status(500).json({ message: "Internal server error" });
         }
     }
+
+    async searchUserByEmail(req, res) {
+        try {
+            const { email } = req.body;
+
+            const users = await UserInfoModel.find({
+                email: { $regex: email, $options: "i" },
+            });
+
+            if (users.length > 0) {
+                return res.status(200).json(users);
+            } else {
+                return res.status(200).json({ message: "No users found" });
+            }
+        } catch (err) {
+            res.status(500).json({ message: "Internal server error" });
+        }
+    }
 }
 
 module.exports = new AuthController();
