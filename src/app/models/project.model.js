@@ -10,7 +10,6 @@ const ProjectSchema = new Schema(
         name: { type: String },
         description: { type: String },
         userId: { type: ObjectId, ref: userTableName },
-        deadline: { type: Date },
         wsId: { type: ObjectId, ref: workspaceTableName },
     },
     {
