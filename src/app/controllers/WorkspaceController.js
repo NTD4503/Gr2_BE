@@ -1,35 +1,128 @@
 const Config = require("../../util/Config");
+const { mongoose } = require("mongoose");
 const { UserTaskModel } = require("../models/userTask.model");
+const { UserWorkspaceModel } = require("../models/userWorkspace.model");
 const { WorkspaceModel } = require("../models/workspace.model");
+const ObjectId = mongoose.Types.ObjectId;
 
+function generateRandomCode() {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let code = "";
+
+    for (let i = 0; i < 7; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        code += characters.charAt(randomIndex);
+    }
+
+    return code;
+}
 class WorkspaceController {
     async create(req, res) {
         try {
             const { userId, name, description, memberId } = req.body;
 
-            const newTask = await WorkspaceModel.create({
+            const newWs = await WorkspaceModel.create({
                 name,
                 description,
+                code: generateRandomCode(),
             });
-            newTask.save();
+            newWs.save();
 
-            await UserTaskModel.create({
+            await UserWorkspaceModel.create({
                 userId,
-                taskId: newTask._id,
-                role: Config.USERTASK_ROLE_ADMIN,
+                wsId: newWs._id,
+                role: Config.USERWORKSPACE_ROLE_ADMIN,
             });
 
-            if (memberId.length > 0) {
-                memberId.foreach(async memId => {
-                    await UserTaskModel.create({
-                        userId: memId,
-                        taskId: newTask._id,
-                        role: Config.USERTASK_ROLE_MEMBER,
-                    });
-                });
-            }
+            return res.status(200).json(newWs);
+        } catch (err) {
+            res.status(500).json({ message: "Internal server error" });
+        }
+    }
 
-            return res.status(200).json(newTask);
+    async getAll(req, res) {
+        try {
+            const { userId } = req.body;
+
+            const workspaces = await UserWorkspaceModel.aggregate([
+                { $match: { userId: new ObjectId(userId) } },
+                {
+                    $lookup: {
+                        from: "workspaces", // assuming the name of your workspace collection
+                        localField: "wsId",
+                        foreignField: "_id",
+                        as: "workspace",
+                    },
+                },
+                { $unwind: "$workspace" },
+                {
+                    $project: {
+                        role: 1,
+                        workspace: 1,
+                    },
+                },
+            ]);
+
+            return res.status(200).json(workspaces);
+        } catch (err) {
+            res.status(500).json({ message: "Internal server error" });
+        }
+    }
+    async getDetailWs(req, res) {
+        try {
+            const { _id } = req.body;
+
+            const workspaces = await WorkspaceModel.aggregate([
+                { $match: { _id: new ObjectId(_id) } },
+                {
+                    $lookup: {
+                        from: "projects",
+                        localField: "_id",
+                        foreignField: "wsId",
+                        as: "project",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "tasks",
+                        localField: "_id",
+                        foreignField: "workspaceId",
+                        as: "tasks",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "userworkspaces",
+                        localField: "_id",
+                        foreignField: "wsId",
+                        as: "members",
+                    },
+                },
+                // {
+                //     $unwind: "$members",
+                // },
+                {
+                    $lookup: {
+                        from: "userinfos",
+                        localField: "members.userId", // Trường userId trong members
+                        foreignField: "_id",
+                        as: "member",
+                    },
+                },
+                // {
+                //     $addFields: {
+                //         "member.role": "$members.role", // Thêm trường role vào member
+                //     },
+                // },
+                // { $unwind: "$member" },
+                // {
+                //     $project: {
+                //         members: 0,
+                //     },
+                // },
+            ]);
+
+            return res.status(200).json(workspaces);
         } catch (err) {
             res.status(500).json({ message: "Internal server error" });
         }
