@@ -92,6 +92,30 @@ class WorkspaceController {
                 },
                 {
                     $lookup: {
+                        from: "usertasks",
+                        localField: "tasks._id",
+                        foreignField: "taskId",
+                        as: "usertasks",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "userinfos",
+                        localField: "usertasks.userId",
+                        foreignField: "_id",
+                        as: "usertask",
+                    },
+                },
+                {
+                    $addFields: {
+                        "tasks.firstName": "$usertask.firstName",
+                        "tasks.lastName": "$usertask.lastName",
+                        "tasks.role": "$usertasks.role",
+                        "tasks.userId": "$usertasks.userId",
+                    },
+                },
+                {
+                    $lookup: {
                         from: "userworkspaces",
                         localField: "_id",
                         foreignField: "wsId",
@@ -115,11 +139,12 @@ class WorkspaceController {
                 //     },
                 // },
                 // { $unwind: "$member" },
-                // {
-                //     $project: {
-                //         members: 0,
-                //     },
-                // },
+                {
+                    $project: {
+                        usertask: 0,
+                        usertasks: 0,
+                    },
+                },
             ]);
 
             return res.status(200).json(workspaces);

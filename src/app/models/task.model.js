@@ -12,7 +12,7 @@ const taskSchema = new Schema(
         startTime: { type: Date },
         deadline: { type: Date },
         priority: { type: String },
-        progress: { type: Number },
+        status: { type: String },
         workspaceId: { type: ObjectId, ref: workspaceTableName },
         type: { type: String },
         projectId: { type: ObjectId, ref: projectTableName },
