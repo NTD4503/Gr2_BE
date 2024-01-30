@@ -3,6 +3,7 @@ class APIConfig {
     static SIGNUP = "/signup";
     static GET_USER_INFO = "/get-user-info";
     static SEARCH_USER_EMAIL = "/search-user-email";
+    static GET_ALL_USER_EMAIL = "/get-all-user-email";
 
     // Task
     static CREATE_TASK = "/create-task";
@@ -17,6 +18,9 @@ class APIConfig {
     static CREATE_WORKSPACE = "/create-workspace";
     static GET_WORKSPACE_BY_USERID = "/get-workspace-by-userid";
     static GET_DETAIL_WORKSPACE = "/get_detail-workspace";
+    static JOIN_WORKSPACE_BY_CODE = "/join-workspace-by-code";
+    static GET_ALL_USER_OF_WORKSPACE = "/get-all-user-of-workspace";
+    static ADD_USER_TO_WORKSPACE = "/add-user-to-workspace";
 
     // Project
     static CREATE_PROJECT = "/create-project";

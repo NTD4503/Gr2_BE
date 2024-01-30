@@ -52,6 +52,27 @@ class AuthController {
             res.status(500).json({ message: "Internal server error" });
         }
     }
+    async getAllUserEmail(req, res) {
+        try {
+            // const {  } = req.body;
+
+            const allUser = await UserInfoModel.aggregate([
+                {
+                    $match: {},
+                },
+                {
+                    $project: {
+                        email: 1,
+                    },
+                },
+            ]);
+
+            return res.status(200).json(allUser);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({ message: "Internal server error" });
+        }
+    }
 }
 
 module.exports = new AuthController();

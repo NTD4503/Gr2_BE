@@ -107,11 +107,20 @@ class WorkspaceController {
                     },
                 },
                 {
+                    $lookup: {
+                        from: "projects",
+                        localField: "tasks.projectId",
+                        foreignField: "_id",
+                        as: "projects",
+                    },
+                },
+                {
                     $addFields: {
                         "tasks.firstName": "$usertask.firstName",
                         "tasks.lastName": "$usertask.lastName",
                         "tasks.role": "$usertasks.role",
                         "tasks.userId": "$usertasks.userId",
+                        "tasks.projectName": "$projects.name",
                     },
                 },
                 {
@@ -133,11 +142,11 @@ class WorkspaceController {
                         as: "member",
                     },
                 },
-                // {
-                //     $addFields: {
-                //         "member.role": "$members.role", // Thêm trường role vào member
-                //     },
-                // },
+                {
+                    $addFields: {
+                        "member.role": "$members.role", // Thêm trường role vào member
+                    },
+                },
                 // { $unwind: "$member" },
                 {
                     $project: {
@@ -148,6 +157,97 @@ class WorkspaceController {
             ]);
 
             return res.status(200).json(workspaces);
+        } catch (err) {
+            res.status(500).json({ message: "Internal server error" });
+        }
+    }
+
+    async joinWorkspaceByCode(req, res) {
+        try {
+            const { userId, code } = req.body;
+
+            const workspaces = await WorkspaceModel.findOne({ code });
+            console.log(workspaces);
+            if (workspaces) {
+                const isUserJoined = await UserWorkspaceModel.findOne({
+                    userId: userId,
+                    wsId: workspaces._id,
+                });
+                if (isUserJoined) {
+                    return res.status(200).json({ message: "You are already in the workspace" });
+                } else
+                    await UserWorkspaceModel.create({
+                        userId,
+                        wsId: workspaces._id,
+                        role: Config.USERWORKSPACE_ROLE_MEMBER,
+                    });
+                return res.status(200).json({ message: "Joined workspace" });
+            } else {
+                res.status(200).json({ message: "Not exist workspace" });
+            }
+        } catch (err) {
+            res.status(500).json({ message: "Internal server error" });
+        }
+    }
+
+    async getAllUserOfWorkspace(req, res) {
+        try {
+            const { wsId } = req.body;
+
+            console.log("wsId: ", wsId);
+
+            const allUser = await UserWorkspaceModel.aggregate([
+                {
+                    $match: {
+                        wsId: new ObjectId(wsId),
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "userinfos",
+                        localField: "userId",
+                        foreignField: "_id",
+                        as: "userInfos",
+                    },
+                },
+                {
+                    $unwind: "$userInfos",
+                },
+                {
+                    $project: {
+                        userInfos: {
+                            email: 1,
+                            _id: 1,
+                        },
+                    },
+                },
+            ]);
+            console.log("allUser: ", allUser);
+            if (allUser.length) {
+                return res.status(200).json(allUser);
+            }
+        } catch (err) {
+            res.status(500).json({ message: "Internal server error" });
+        }
+    }
+
+    async addUserToWs(req, res) {
+        try {
+            const { wsId, memberId } = req.body;
+
+            if (memberId.length > 0) {
+                await Promise.all(
+                    memberId.map(async mem => {
+                        await UserWorkspaceModel.create({
+                            userId: mem,
+                            wsId,
+                            role: Config.USERWORKSPACE_ROLE_MEMBER,
+                        });
+                    }),
+                );
+
+                return res.status(200).json({ message: "successfully added" });
+            }
         } catch (err) {
             res.status(500).json({ message: "Internal server error" });
         }
