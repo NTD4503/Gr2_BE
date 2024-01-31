@@ -3,6 +3,7 @@ const { mongoose } = require("mongoose");
 const { UserTaskModel } = require("../models/userTask.model");
 const { UserWorkspaceModel } = require("../models/userWorkspace.model");
 const { WorkspaceModel } = require("../models/workspace.model");
+const { TaskModel } = require("../models/Task.model");
 const ObjectId = mongoose.Types.ObjectId;
 
 function generateRandomCode() {
@@ -194,8 +195,6 @@ class WorkspaceController {
         try {
             const { wsId } = req.body;
 
-            console.log("wsId: ", wsId);
-
             const allUser = await UserWorkspaceModel.aggregate([
                 {
                     $match: {
@@ -222,7 +221,6 @@ class WorkspaceController {
                     },
                 },
             ]);
-            console.log("allUser: ", allUser);
             if (allUser.length) {
                 return res.status(200).json(allUser);
             }
@@ -248,6 +246,54 @@ class WorkspaceController {
 
                 return res.status(200).json({ message: "successfully added" });
             }
+        } catch (err) {
+            res.status(500).json({ message: "Internal server error" });
+        }
+    }
+
+    async getAllTaskOfWorkspace(req, res) {
+        try {
+            const { wsId } = req.body;
+
+            const allTask = await TaskModel.aggregate([
+                {
+                    $match: {
+                        workspaceId: new ObjectId(wsId),
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "usertasks",
+                        localField: "_id",
+                        foreignField: "taskId",
+                        as: "usertask",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "userinfos",
+                        localField: "usertask.userId",
+                        foreignField: "_id",
+                        as: "userInfo",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "projects",
+                        localField: "projectId",
+                        foreignField: "_id",
+                        as: "projectInfo",
+                    },
+                },
+                {
+                    $unwind: "$userInfo",
+                },
+                {
+                    $unwind: "$projectInfo",
+                },
+            ]);
+            console.log("allTask: ", allTask);
+            res.status(200).json(allTask);
         } catch (err) {
             res.status(500).json({ message: "Internal server error" });
         }

@@ -21,9 +21,12 @@ class APIConfig {
     static JOIN_WORKSPACE_BY_CODE = "/join-workspace-by-code";
     static GET_ALL_USER_OF_WORKSPACE = "/get-all-user-of-workspace";
     static ADD_USER_TO_WORKSPACE = "/add-user-to-workspace";
+    static GET_ALL_TASK_OF_WORKSPACE = "/get-all-task-of-workspace";
 
     // Project
     static CREATE_PROJECT = "/create-project";
+    static GET_ALL_TASK_OF_PROJECT = "/get-all-task-of-project";
+    static GET_ALL_USER_OF_PROJECT = "/get-all-user-of-project";
 }
 
 module.exports = APIConfig;

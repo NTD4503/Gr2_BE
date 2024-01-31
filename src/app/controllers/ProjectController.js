@@ -5,6 +5,7 @@ const { UserWorkspaceModel } = require("../models/userWorkspace.model");
 const { WorkspaceModel } = require("../models/workspace.model");
 const { ProjectModel } = require("../models/Project.model");
 const { UserProjectModel } = require("../models/userProject.model");
+const { TaskModel } = require("../models/Task.model");
 const ObjectId = mongoose.Types.ObjectId;
 
 class ProjectController {
@@ -44,6 +45,52 @@ class ProjectController {
             }
 
             return res.status(200).json(newPrj);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    async getTaskOfProject(req, res) {
+        try {
+            const { _id } = req.body;
+
+            const allTask = await TaskModel.aggregate([
+                { $match: { projectId: new ObjectId(_id) } },
+                // {
+                //     $lookup: {
+                //         from: "usertasks",
+                //         localField: "_id",
+                //         foreignField: "taskId",
+                //         as: "usertasks"
+                //     },
+                // },
+            ]);
+
+            return res.status(200).json(allTask);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    async getAllUserOfProject(req, res) {
+        try {
+            const { _id } = req.body;
+
+            const allTask = await UserProjectModel.aggregate([
+                { $match: { projectId: new ObjectId(_id) } },
+                {
+                    $lookup: {
+                        from: "userinfos",
+                        localField: "userId",
+                        foreignField: "_id",
+                        as: "userInfo",
+                    },
+                },
+                {
+                    $unwind: "$userInfo",
+                },
+            ]);
+
+            return res.status(200).json(allTask);
         } catch (err) {
             console.log(err);
         }
