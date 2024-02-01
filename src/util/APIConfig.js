@@ -7,6 +7,9 @@ class APIConfig {
 
     // Task
     static CREATE_TASK = "/create-task";
+    static GET_ALL_TASK_BY_USERID = "/get-all-task-by-userid";
+    static UPDATE_TASK = "/update-task";
+    static DELETE_TASK = "/delete-task";
 
     // Event
     static CREATE_EVENT = "/create-event";

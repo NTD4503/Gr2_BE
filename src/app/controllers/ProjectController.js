@@ -52,18 +52,39 @@ class ProjectController {
 
     async getTaskOfProject(req, res) {
         try {
-            const { _id } = req.body;
+            const { _id, userId } = req.body;
 
             const allTask = await TaskModel.aggregate([
                 { $match: { projectId: new ObjectId(_id) } },
-                // {
-                //     $lookup: {
-                //         from: "usertasks",
-                //         localField: "_id",
-                //         foreignField: "taskId",
-                //         as: "usertasks"
-                //     },
-                // },
+                {
+                    $lookup: {
+                        from: "usertasks",
+                        localField: "_id",
+                        foreignField: "taskId",
+                        as: "usertasks",
+                    },
+                },
+                {
+                    $addFields: {
+                        usertask: {
+                            $arrayElemAt: [
+                                {
+                                    $filter: {
+                                        input: "$usertasks",
+                                        as: "usertask",
+                                        cond: { $eq: ["$$usertask.userId", new ObjectId(userId)] },
+                                    },
+                                },
+                                0,
+                            ],
+                        },
+                    },
+                },
+                {
+                    $project: {
+                        usertasks: 0,
+                    },
+                },
             ]);
 
             return res.status(200).json(allTask);
