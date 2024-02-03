@@ -30,6 +30,7 @@ class APIConfig {
     static CREATE_PROJECT = "/create-project";
     static GET_ALL_TASK_OF_PROJECT = "/get-all-task-of-project";
     static GET_ALL_USER_OF_PROJECT = "/get-all-user-of-project";
+    static GET_ALL_PROJECT_BY_USER = "/get-all-project-by-user";
 }
 
 module.exports = APIConfig;

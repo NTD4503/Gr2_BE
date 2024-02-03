@@ -116,6 +116,47 @@ class ProjectController {
             console.log(err);
         }
     }
+
+    async getAllProjectOfUserId(req, res) {
+        try {
+            const { userId } = req.body;
+
+            const allTask = await UserProjectModel.aggregate([
+                { $match: { userId: new ObjectId(userId) } },
+                {
+                    $lookup: {
+                        from: "projects",
+                        localField: "projectId",
+                        foreignField: "_id",
+                        as: "projectInfo",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "workspaces",
+                        localField: "projectInfo.wsId",
+                        foreignField: "_id",
+                        as: "workspaceInfo",
+                    },
+                },
+                {
+                    $unwind: "$projectInfo",
+                },
+                {
+                    $addFields: {
+                        "projectInfo.workspaceName": "$workspaceInfo.name",
+                    },
+                },
+                {
+                    $unwind: "$projectInfo.workspaceName",
+                },
+            ]);
+
+            return res.status(200).json(allTask);
+        } catch (err) {
+            console.log(err);
+        }
+    }
 }
 
 module.exports = new ProjectController();
