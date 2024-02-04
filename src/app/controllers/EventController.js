@@ -1,10 +1,12 @@
 const Config = require("../../util/Config");
 const { EventModel } = require("../models/event.model");
+const { mongoose } = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
 
 class EventController {
     async create(req, res) {
         try {
-            const { userId, name, description, startTime, endTime } = req.body;
+            const { userId, name, description, startTime, endTime, wsId } = req.body;
 
             const newEvent = await EventModel.create({
                 userId,
@@ -12,6 +14,7 @@ class EventController {
                 description,
                 startTime,
                 endTime,
+                wsId,
             });
             newEvent.save();
 
@@ -35,7 +38,7 @@ class EventController {
 
     async editEvent(req, res) {
         try {
-            const { _id, name, description, startTime, endTime } = req.body;
+            const { _id, name, description, startTime, endTime, wsId } = req.body;
 
             const event = await EventModel.updateOne(
                 { _id },
@@ -44,6 +47,7 @@ class EventController {
                     description,
                     startTime,
                     endTime,
+                    wsId,
                 },
             );
 
@@ -58,6 +62,24 @@ class EventController {
 
             const event = await EventModel.deleteOne({ _id });
 
+            return res.status(200).json(event);
+        } catch (err) {
+            res.status(500).json({ message: "Internal server error" });
+        }
+    }
+
+    async getEventByWs(req, res) {
+        try {
+            let event;
+            const { selectedWs, userId } = req.body;
+
+            const workspaceIds = selectedWs.map(workspaceId => new ObjectId(workspaceId));
+
+            if (selectedWs.length) {
+                event = await EventModel.find({ userId, wsId: { $in: workspaceIds } });
+            } else {
+                event = await EventModel.find({ userId });
+            }
             return res.status(200).json(event);
         } catch (err) {
             res.status(500).json({ message: "Internal server error" });

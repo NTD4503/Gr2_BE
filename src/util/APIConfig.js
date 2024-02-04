@@ -16,6 +16,7 @@ class APIConfig {
     static GET_EVENT = "/get-event";
     static EDIT_EVENT = "/edit-event";
     static DELETING_EVENT = "/delete-event";
+    static GET_EVENT_BY_WS = "/get-event-by-ws";
 
     // Workspace
     static CREATE_WORKSPACE = "/create-workspace";

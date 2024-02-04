@@ -9,5 +9,6 @@ router.post(APIConfig.CREATE_EVENT, EventController.create);
 router.post(APIConfig.GET_EVENT, EventController.getEvent);
 router.post(APIConfig.EDIT_EVENT, EventController.editEvent);
 router.post(APIConfig.DELETING_EVENT, EventController.deleteEvent);
+router.post(APIConfig.GET_EVENT_BY_WS, EventController.getEventByWs);
 
 module.exports = router;
