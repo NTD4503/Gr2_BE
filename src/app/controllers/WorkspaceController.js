@@ -148,7 +148,7 @@ class WorkspaceController {
                         "member.role": "$members.role", // Thêm trường role vào member
                     },
                 },
-                // { $unwind: "$member" },
+                // { $unwind: "$members.role" },
                 {
                     $project: {
                         usertask: 0,
@@ -294,6 +294,20 @@ class WorkspaceController {
             ]);
             console.log("allTask: ", allTask);
             res.status(200).json(allTask);
+        } catch (err) {
+            res.status(500).json({ message: "Internal server error" });
+        }
+    }
+
+    async outWs(req, res) {
+        try {
+            const { wsId, userId } = req.body;
+
+            await UserWorkspaceModel.deleteOne({
+                userId,
+                wsId,
+            });
+            return res.status(200).json({ message: "successfully out" });
         } catch (err) {
             res.status(500).json({ message: "Internal server error" });
         }

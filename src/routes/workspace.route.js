@@ -12,5 +12,6 @@ router.post(APIConfig.JOIN_WORKSPACE_BY_CODE, WorkspaceController.joinWorkspaceB
 router.post(APIConfig.GET_ALL_USER_OF_WORKSPACE, WorkspaceController.getAllUserOfWorkspace);
 router.post(APIConfig.ADD_USER_TO_WORKSPACE, WorkspaceController.addUserToWs);
 router.post(APIConfig.GET_ALL_TASK_OF_WORKSPACE, WorkspaceController.getAllTaskOfWorkspace);
+router.post(APIConfig.OUT_WORKSPACE, WorkspaceController.outWs);
 
 module.exports = router;
