@@ -307,6 +307,37 @@ class WorkspaceController {
                 userId,
                 wsId,
             });
+
+            const result = await UserTaskModel.aggregate([
+                {
+                    $match: {
+                        userId: new ObjectId(userId),
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "tasks",
+                        localField: "taskId",
+                        foreignField: "_id",
+                        as: "taskInfo",
+                    },
+                },
+                {
+                    $unwind: "$taskInfo",
+                },
+                {
+                    $match: {
+                        "taskInfo.workspaceId": new ObjectId(wsId),
+                    },
+                },
+            ]);
+
+            // Xử lý xóa các bản ghi từ bảng UserTaskModel
+            const deletedRecords = await UserTaskModel.deleteMany({
+                userId,
+                taskId: { $in: result.map(item => item.taskId) },
+            });
+
             return res.status(200).json({ message: "successfully out" });
         } catch (err) {
             res.status(500).json({ message: "Internal server error" });
